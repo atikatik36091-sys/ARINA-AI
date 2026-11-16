@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b1c">
+<title>ARINA AI</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ min-height:100vh;
+ background:radial-gradient(circle at 50% 35%,#19265a,#080b1c 65%);
+ color:white;
+ font-family:Arial,sans-serif;
+ display:flex;
+ justify-content:center;
+}
+.app{
+ width:100%;
+ max-width:450px;
+ min-height:100vh;
+ padding:28px 22px;
+ text-align:center;
+}
+h1{
+ font-size:34px;
+ letter-spacing:5px;
+ color:#72caff;
+ text-shadow:0 0 20px #168dff;
+ margin-top:35px;
+}
+.status{color:#a5b8dc;margin-top:10px}
+.orb{
+ width:205px;height:205px;
+ margin:65px auto 35px;
+ border-radius:50%;
+ background:radial-gradient(circle at 35% 30%,#b8faff,#258aff 35%,#6726d9 70%,#10132c);
+ box-shadow:0 0 30px #298bff,0 0 80px #612bdf;
+ animation:glow 3s infinite alternate;
+ display:flex;align-items:center;justify-content:center;
+ font-size:65px;
+}
+@keyframes glow{
+ from{transform:scale(.96);box-shadow:0 0 25px #298bff}
+ to{transform:scale(1.04);box-shadow:0 0 65px #812bff}
+}
+button{
+ border:0;border-radius:30px;
+ padding:15px 27px;
+ color:white;background:linear-gradient(90deg,#087cff,#793bff);
+ font-size:17px;
+ box-shadow:0 0 20px #315dff;
+}
+button:active{transform:scale(.96)}
+#listen{width:75px;height:75px;border-radius:50%;font-size:29px;padding:0}
+.panel{
+ margin-top:28px;
+ padding:17px;
+ border:1px solid #334c91;
+ border-radius:17px;
+ background:#111a35bb;
+ text-align:left;
+ min-height:85px;
+}
+.label{color:#77bfff;font-size:13px;margin-bottom:9px}
+.message{line-height:1.6;overflow-wrap:anywhere}
+.footer{margin-top:35px;color:#8497c2;font-size:12px}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<h1>ARINA AI</h1>
+<div class="status" id="status">আপনার ব্যক্তিগত AI সহকারী</div>
+
+<div class="orb">✦</div>
+
+<button id="listen">🎙️</button>
+<p>কথা বলতে মাইক্রোফোন চাপুন</p>
+
+<div class="panel">
+ <div class="label">আপনি বলেছেন</div>
+ <div class="message" id="question">আপনার কথা এখানে দেখা যাবে...</div>
+</div>
+
+<div class="panel">
+ <div class="label">ARINA-এর উত্তর</div>
+ <div class="message" id="answer">আসসালামু আলাইকুম! আমি ARINA AI। কীভাবে সাহায্য করতে পারি?</div>
+</div>
+
+<div style="margin-top:22px">
+<button onclick="speakCurrent()">🔊 উত্তর শুনুন</button>
+</div>
+
+<div class="footer">ARINA AI • Bengali Voice Assistant</div>
+</div>
+
+<script>
+const statusText=document.getElementById("status");
+const question=document.getElementById("question");
+const answer=document.getElementById("answer");
+
+let currentAnswer="আসসালামু আলাইকুম! আমি ARINA AI। কীভাবে সাহায্য করতে পারি?";
+
+function speak(text){
+ if(!("speechSynthesis" in window)){
+  statusText.textContent="এই ব্রাউজারে ভয়েস সুবিধা নেই";
+  return;
+ }
+ speechSynthesis.cancel();
+ const voice=new SpeechSynthesisUtterance(text);
+ voice.lang="bn-BD";
+ voice.rate=0.92;
+ speechSynthesis.speak(voice);
+}
+
+function speakCurrent(){
+ speak(currentAnswer);
+}
+
+function reply(text){
+ let t=text.toLowerCase();
+ let result="তোমার কথা শুনেছি। আমি ARINA AI। আরও ভালোভাবে সাহায্য করতে তোমার প্রশ্নটি একটু বিস্তারিত বলো।";
+
+ if(t.includes("হ্যালো")||t.includes("হাই")||t.includes("সালাম")){
+  result="হ্যালো! আমি ARINA AI। তোমার সঙ্গে কথা বলতে প্রস্তুত।";
+ }
+ else if(t.includes("নাম")){
+  result="আমার নাম ARINA AI। আমি তোমার বাংলা ভয়েস অ্যাসিস্ট্যান্ট।";
+ }
+ else if(t.includes("সময়")||t.includes("সময়")){
+  result="এখন সময় "+new Date().toLocaleTimeString("bn-BD")+".";
+ }
+ else if(t.includes("তারিখ")){
+  result="আজ "+new Date().toLocaleDateString("bn-BD")+".";
+ }
+ else if(t.includes("ইউটিউব")){
+  result="ইউটিউব খুলছি।";
+  window.open("https://www.youtube.com/","_blank");
+ }
+ else if(t.includes("ধন্যবাদ")){
+  result="তোমাকে স্বাগতম! আর কোনো সাহায্য লাগলে বলো।";
+ }
+
+ currentAnswer=result;
+ answer.textContent=result;
+ speak(result);
+}
+
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+document.getElementById("listen").addEventListener("click",()=>{
+ if(!SpeechRecognition){
+  statusText.textContent="এই ব্রাউজারে ভয়েস রিকগনিশন সাপোর্ট নেই। Chrome দিয়ে চেষ্টা করো।";
+  return;
+ }
+
+ const recognition=new SpeechRecognition();
+ recognition.lang="bn-BD";
+ recognition.interimResults=false;
+ recognition.maxAlternatives=1;
+
+ statusText.textContent="শুনছি... এখন কথা বলো";
+
+ recognition.onresult=(event)=>{
+  const text=event.results[0][0].transcript;
+  question.textContent=text;
+  statusText.textContent="তোমার কথা বুঝেছি";
+  reply(text);
+ };
+
+ recognition.onerror=()=>{
+  statusText.textContent="আবার চেষ্টা করো। মাইক্রোফোনের অনুমতি পরীক্ষা করো।";
+ };
+
+ recognition.onend=()=>{
+  if(statusText.textContent==="শুনছি... এখন কথা বলো"){
+   statusText.textContent="আবার কথা বলতে মাইক্রোফোন চাপো";
+  }
+ };
+
+ try{recognition.start();}
+ catch(e){statusText.textContent="আবার চেষ্টা করো";}
+});
+</script>
+</body>
+</html>
